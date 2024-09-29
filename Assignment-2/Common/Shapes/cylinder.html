@@ -9,7 +9,7 @@
         <link rel="stylesheet" href="../Common/demo.css">
         
         <script>
-            window.onload = () => {
+            function init(){
                 let canvas = document.getElementById("webgl-canvas");
                 let gl = canvas.getContext("webgl2");
 
@@ -38,6 +38,7 @@
 
                 render();
             };
+            window.onload = init;
         </script>
     </head>
 
