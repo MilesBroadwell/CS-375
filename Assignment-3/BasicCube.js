@@ -18,7 +18,6 @@ class BasicCube {
             void main() {
                 vColor = aColor;
                 gl_Position = P * MV * aPosition;
-                //gl_Position = aPosition;
             }
         `;
 
