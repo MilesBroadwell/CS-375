@@ -1,19 +1,8 @@
-Project Idea: A Duck Hunt inspired clicker-shooter, using models of grass, trees, something to shoot at, and a gun. Just like Duck Hunt, the gun and targets would be animated, and textures would be used to make all of the various models distinct. 
+# React + Vite
 
-Week-by-Week plan:
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-    Week 1: Get Three.js installed and working, and find some importable models
-  
-    Week 2 (Thanksgiving Week): Finalise mechanics list and start implementation; Start implementation of Player input
-  
-    Week 3: Put together enviornment and have mechanics mostly implemented; import or create animations
-  
-    Week 4: Finalise implementations (polishing and debugging); create slideshow presentation
+Currently, two official plugins are available:
 
-Technical Requirements:
-
-    Three.js and JS
-  
-    Sketchfab
-  
-    If needed, Blender (for importing/creating animations)
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
