@@ -1,3 +1,9 @@
+# THIS LAYER OF THE PROJECT SHOULD HAVE "node_modules" FROM NODE.JS IN IT
+It does not have this folder however, since the filesize was too big.
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
