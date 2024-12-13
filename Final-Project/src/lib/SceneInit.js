@@ -1,100 +1,183 @@
+import { useEffect } from 'react';
 import * as THREE from 'three';
-//import { OrbitControls } from 'three/examples/jsm/controls/OrbitControls';
-import Stats from 'three/examples/jsm/libs/stats.module';
+import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
+import { TextGeometry } from 'three/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from 'three/examples/jsm/loaders/FontLoader';
+import { TTFLoader } from 'three/examples/jsm/loaders/TTFLoader';
+import SceneInit from './lib/SceneInit';
 
-export default class SceneInit {
-  constructor(canvasId) {
-    // NOTE: Core components to initialize Three.js app.
-    this.scene = undefined;
-    this.camera = undefined;
-    this.renderer = undefined;
+function App() {
+  useEffect(() => {
+    
+    const theHunt = new SceneInit('myThreeJsCanvas');
+    theHunt.initialize();
+    theHunt.animate();
 
-    // NOTE: Camera params;
-    this.fov = 50;
-    this.nearPlane = 1;
-    this.farPlane = 1000;
-    this.canvasId = canvasId;
+    const gltfLoader = new GLTFLoader();
+    let duck;
+    let goose;
+    let gun;
+    let tree;
+    let score = 0;
 
-    // NOTE: Additional components.
-    this.clock = undefined;
-    this.stats = undefined;
-    //this.controls = undefined;
+    const dlLight = new THREE.DirectionalLight(0xffffff, 1);
+    dlLight.position.set(10, 10, 10).normalize();
+    theHunt.scene.add(dlLight);
 
-    // NOTE: Lighting is basically required.
-    this.ambientLight = undefined;
-    this.directionalLight = undefined;
-  }
+    
+    const bgGeo = new THREE.BoxGeometry(300, 200, 200);
+    const bgMat = new THREE.MeshPhongMaterial({color: 0x87ceeb});
+    const bgMesh = new THREE.Mesh(bgGeo, bgMat);
+    bgMesh.position.z = -200;
+    theHunt.scene.add(bgMesh);
 
-  initialize() {
-    this.scene = new THREE.Scene();
-    this.camera = new THREE.PerspectiveCamera(
-      this.fov,
-      window.innerWidth / window.innerHeight,
-      1,
-      1000
-    );
-    this.camera.position.z = 48;
+    const grndGeo = new THREE.BoxGeometry(300, 50, 100);
+    const grndMat = new THREE.MeshPhongMaterial({color: 0x00ff00});
+    const grndMesh = new THREE.Mesh(grndGeo, grndMat);
+    grndMesh.position.z = -100;
+    grndMesh.position.y = -50;
+    theHunt.scene.add(grndMesh);
 
-    // NOTE: Specify a canvas which is already created in the HTML.
-    const canvas = document.getElementById(this.canvasId);
-    this.renderer = new THREE.WebGLRenderer({
-      canvas,
-      // NOTE: Anti-aliasing smooths out the edges.
-      antialias: true,
+    const cloudGeo = new THREE.SphereGeometry(10);
+    const cloudMat = new THREE.MeshPhongMaterial({color: 0xffffff});
+    const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+    cloudMesh.position.z = -25;
+    cloudMesh.position.y = 30;
+    cloudMesh.position.x = 30;
+    cloudMesh.scale.x = 2;
+    theHunt.scene.add(cloudMesh);  
+
+    gltfLoader.load('./assets/banana_duck/scene.gltf', (gltfScene) => {
+      duck = gltfScene;
+      gltfScene.scene.rotation.y = Math.PI / 8;
+      gltfScene.scene.position.y = -3;
+      gltfScene.scene.position.x = -10;
+      gltfScene.scene.scale.set(2, 2, 2);
+      theHunt.scene.add(gltfScene.scene);
     });
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    // this.renderer.shadowMap.enabled = true;
-    document.body.appendChild(this.renderer.domElement);
 
-    this.clock = new THREE.Clock();
-    //this.controls = new OrbitControls(this.camera, this.renderer.domElement);
-    this.stats = Stats();
-    document.body.appendChild(this.stats.dom);
+    gltfLoader.load('./assets/goose_low_poly/scene.gltf', (gltfScene) => {
+      goose = gltfScene;
+      gltfScene.scene.rotation.y = Math.PI / 8;
+      gltfScene.scene.position.y = 3;
+      gltfScene.scene.position.x = 10;
+      gltfScene.scene.scale.set(0.02, 0.02, 0.02);
+      theHunt.scene.add(gltfScene.scene);
+    });
 
-    // ambient light which is for the whole scene
-    this.ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
-    this.ambientLight.castShadow = true;
-    this.scene.add(this.ambientLight);
+    gltfLoader.load('./assets/low-poly_bren_gun/scene.gltf', (gltfScene) => {
+      gun = gltfScene;
+      gltfScene.scene.rotation.y = Math.PI / 1.9;
+      gltfScene.scene.position.set(-1, -3, 30);
+      gltfScene.scene.scale.set(15, 15, 15);
+      theHunt.scene.add(gltfScene.scene);
+    });
 
-    // directional light - parallel sun rays
-    this.directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-    // this.directionalLight.castShadow = true;
-    this.directionalLight.position.set(0, 32, 64);
-    this.scene.add(this.directionalLight);
+    gltfLoader.load('./assets/laurel_tree_-_low_poly/scene.gltf', (gltfScene) => {
+      tree = gltfScene;
+      gltfScene.scene.rotation.y = Math.PI / 16;
+      gltfScene.scene.position.y = -28;
+      gltfScene.scene.position.z = -75;
+      gltfScene.scene.position.x = -50;
+      gltfScene.scene.scale.set(0.2, 0.2, 0.2);
+      theHunt.scene.add(gltfScene.scene);
+    });
 
-    // if window resizes
-    window.addEventListener('resize', () => this.onWindowResize(), false);
+    const fontLoader = new FontLoader();
+    const ttfLoader = new TTFLoader();
+    ttfLoader.load('fonts/jet_brains_mono_regular.ttf', (json) => {
+      // parses font
+      const jetBrainsFont = fontLoader.parse(json);
+      // use parsed font as a normal
+      const textGeo = new TextGeometry(score, {
+        height: 2,
+        size: 40,
+        font: jetBrainsFont,
+      });
+      const textMat = new THREE.MeshPhongMaterial({color: 0xff0000});
+      const textMesh = new THREE.Mesh(textGeo, textMat);
+      textMesh.position.set(-3, -10, 0);
+      theHunt.scene.add(textMesh);
+    });
 
-    // NOTE: Load space background.
-    // this.loader = new THREE.TextureLoader();
-    // this.scene.background = this.loader.load('./pics/space.jpeg');
+    
+    const mouse = new THREE.Vector2();
+    const raycaster = new THREE.Raycaster();
+    const gunPos = new THREE.Vector3();
+    const lerpSpeed = 0.1; //  lerp = linear interpolation
 
-    // NOTE: Declare uniforms to pass into glsl shaders.
-    // this.uniforms = {
-    //   u_time: { type: 'f', value: 1.0 },
-    //   colorB: { type: 'vec3', value: new THREE.Color(0xfff000) },
-    //   colorA: { type: 'vec3', value: new THREE.Color(0xffffff) },
-    // };
+    document.addEventListener('mousemove', (event) => {
+      // mouse pos in NDS
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+    });
+
+    document.addEventListener('click', onMouseClick, false); 
+
+    function onMouseClick(event) {
+      event.preventDefault();
+
+      mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+      mouse.y = - (event.clientY / window.innerHeight) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, theHunt.camera);
+    const intersects = raycaster.intersectObject(theHunt.scene);
+    const object = intersects[0].object;
+
+    if (intersects.length > 0) {
+
+        console.log(object);
+
+        if(object != bgMesh && object != tree && object != gun && object != grndMesh){
+          object.visible = false;
+        }
+    }
   }
 
-  animate() {
-    // NOTE: Window is implied.
-    // requestAnimationFrame(this.animate.bind(this));
-    window.requestAnimationFrame(this.animate.bind(this));
-    this.render();
-    this.stats.update();
-    //this.controls.update();
-  }
+    function animate() {
+      requestAnimationFrame(animate);
 
-  render() {
-    // NOTE: Update uniform data on each render.
-    // this.uniforms.u_time.value += this.clock.getDelta();
-    this.renderer.render(this.scene, this.camera);
-  }
+      if (gun && theHunt.camera) {
+        raycaster.setFromCamera(mouse, theHunt.camera);
 
-  onWindowResize() {
-    this.camera.aspect = window.innerWidth / window.innerHeight;
-    this.camera.updateProjectionMatrix();
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-  }
+        const intersects = raycaster.intersectObject(theHunt.scene, true);
+
+        if (intersects.length > 0) {
+          // move the gun
+          gun.scene.position.copy(intersects[0].point);
+          gun.scene.position.z = 30;
+        }
+        gun.scene.position.lerp(gunPos, lerpSpeed);
+      }
+
+      // Render the scene
+      theHunt.renderer.render(theHunt.scene, theHunt.camera);
+
+      if(duck){
+        duck.scene.rotation.x += 0.01;
+        duck.scene.rotation.y += 0.01;
+        duck.scene.rotation.z += 0.01;
+      }
+      if(goose){
+        goose.scene.rotation.x -= 0.01;
+        goose.scene.rotation.y -= 0.01;
+        goose.scene.rotation.z -= 0.01;
+      }
+      if(cloudMesh.position.x == -100){
+        cloudMesh.position.x = 100;
+      }
+      cloudMesh.position.x -= 1;
+      score++;
+    }
+
+    animate(); 
+  }, []); 
+  
+  return (
+    <div>
+      <canvas id="myThreeJsCanvas" />
+    </div>
+  );
 }
+
+export default App;
